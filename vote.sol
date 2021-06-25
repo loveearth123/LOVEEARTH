@@ -677,8 +677,12 @@ contract LoveVote is Ownable {
     event GetVotor(address user, uint256 _pid, uint8 Option, uint256 account);
     event ProposalEvent(address chairpersonUser, bytes32 _name, bytes32 _AOptions, bytes32 _BOptions, bytes32 _COptions,
         bytes32 _DOptions, bytes32 _FOptions, bool _isMajorProposal);
+        
+    event ProposalStop(uint256 _pid,address msgsender);
+    event ProposaleCalculation(uint256 _pid, bool isMandatorySettlement,address msgsender);
 
     constructor(IERC20 _votorToken){
+        require(address(_votorToken) !=address(0),"_votorToken is zero value! ");
         directors[msg.sender] = true;
         votorToken = _votorToken;
     }
@@ -778,6 +782,7 @@ contract LoveVote is Ownable {
         Proposal storage thisProposal = Proposals[_pid];
         require(thisProposal.Chairperson == msg.sender || directors[msg.sender], "Permission denied!");
         thisProposal.IsEffective = false;
+        emit ProposalStop(_pid,msg.sender);
     }
 
     function proposaleCalculation(uint256 _pid, bool isMandatorySettlement) external validateByPid(_pid) {
@@ -807,6 +812,7 @@ contract LoveVote is Ownable {
         }
         thisProposal.EndTime = block.timestamp;
         thisProposal.IsVotingEnd = true;
+        emit ProposaleCalculation(_pid,isMandatorySettlement,msg.sender);
     }
 
 }

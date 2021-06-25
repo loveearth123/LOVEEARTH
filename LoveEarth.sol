@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity ^0.8.0;
 
 interface IERC20 {
     /**
@@ -104,10 +104,10 @@ interface IERC20 {
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
-    constructor () internal {}
+    constructor ()  {}
 
     function _msgSender() internal view returns (address payable) {
-        return msg.sender;
+        return payable(msg.sender);
     }
 
     function _msgData() internal view returns (bytes memory) {
@@ -286,7 +286,7 @@ contract Ownable is Context {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () internal {
+    constructor ()  {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(address(0), msgSender);
@@ -355,8 +355,10 @@ contract LoveEarthToken is Context, IERC20, Ownable {
     address public publicWelfareFund = address(0);
     address public publicWareHouse = address(0);
     address public uniSwap = address(0);
+  
+    
 
-    constructor() public {
+    constructor()  {
         _name = "LOVEEARTH COIN";
         _symbol = "LEC";
         _totalSupply = 1000000000 * 10 ** 18;
@@ -364,18 +366,30 @@ contract LoveEarthToken is Context, IERC20, Ownable {
         _balances[msg.sender] = _totalSupply;
         _isExist[msg.sender] = true;
         addressNumber = addressNumber.add(1);
+        
+        // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
+         // Create a uniswap pair for this new token
+        // uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
+            // .createPair(address(this), _uniswapV2Router.WETH());
+
+        // set the rest of the contract variables
+        // uniswapV2Router = _uniswapV2Router;
+        
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
     function setPublicWelfareFund(address _publicWelfareFund) external onlyOwner {
+        require(address(_publicWelfareFund) != address(0),"_publicWelfareFund is zero value!");
         publicWelfareFund = _publicWelfareFund;
     }
 
     function setPublicWareHouse(address _publicWareHouse) external onlyOwner {
+        require(address(_publicWareHouse) != address(0),"_publicWareHouse is zero value!");
         publicWareHouse = _publicWareHouse;
     }
 
     function setUniSwap(address _uniSwap) external onlyOwner {
+        require(address(_uniSwap) != address(0),"_uniSwap is zero value!");
         uniSwap = _uniSwap;
     }
 
@@ -428,42 +442,42 @@ contract LoveEarthToken is Context, IERC20, Ownable {
     /**
      * @dev Returns the bep token owner.
      */
-    function getOwner() external view returns (address) {
+    function getOwner() external override view returns (address) {
         return owner();
     }
 
     /**
      * @dev Returns the token decimals.
      */
-    function decimals() external view returns (uint8) {
+    function decimals() external override view returns (uint8) {
         return _decimals;
     }
 
     /**
      * @dev Returns the token symbol.
      */
-    function symbol() external view returns (string memory) {
+    function symbol() external override view returns (string memory) {
         return _symbol;
     }
 
     /**
     * @dev Returns the token name.
     */
-    function name() external view returns (string memory) {
+    function name() external override view returns (string memory) {
         return _name;
     }
 
     /**
      * @dev See {IERC20-totalSupply}.
      */
-    function totalSupply() external view returns (uint256) {
+    function totalSupply() external override view returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) external view returns (uint256) {
+    function balanceOf(address account) external override view returns (uint256) {
         return _balances[account];
     }
 
@@ -475,7 +489,7 @@ contract LoveEarthToken is Context, IERC20, Ownable {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount) public returns (bool) {
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -483,7 +497,7 @@ contract LoveEarthToken is Context, IERC20, Ownable {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) external view returns (uint256) {
+    function allowance(address owner, address spender) external override view returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -494,7 +508,7 @@ contract LoveEarthToken is Context, IERC20, Ownable {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) external returns (bool) {
+    function approve(address spender, uint256 amount) external override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -511,7 +525,7 @@ contract LoveEarthToken is Context, IERC20, Ownable {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
         _transfer(sender, recipient, amount);
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "IERC20: transfer amount exceeds allowance"));
         return true;
@@ -557,6 +571,22 @@ contract LoveEarthToken is Context, IERC20, Ownable {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
+    //   function addLiquidityETH(uint256 tokenAmount) external payable {
+    //     // approve token transfer to cover all possible scenarios
+    //     _approve(address(this), address(uniswapV2Router), tokenAmount);
+
+    //     // add the liquidity
+    //     uniswapV2Router.addLiquidityETH{value: msg.value}(
+    //         address(this),
+    //         tokenAmount,
+    //         0, // slippage is unavoidable
+    //         0, // slippage is unavoidable
+    //         msg.sender,
+    //         block.timestamp
+    //     );
+    // }
+     
+     
     function _approve(address owner, address spender, uint256 amount) internal {
         require(owner != address(0), "IERC20: approve from the zero address");
         require(spender != address(0), "IERC20: approve to the zero address");

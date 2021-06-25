@@ -628,6 +628,7 @@ contract welfare is Ownable{
     IERC20  public mainToken;
     
     constructor(IERC20 _mainToken){
+        require(address(_mainToken ) != address(0),"_mainToken is zero value!");
         mainToken = _mainToken;
     }
     
